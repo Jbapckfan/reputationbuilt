@@ -1,18 +1,59 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { Phone, Mail, Clock, MapPin, CheckCircle } from 'lucide-react'
+import {
+  Phone,
+  Mail,
+  Clock,
+  MapPin,
+  CheckCircle,
+  AlertCircle,
+  LoaderCircle,
+} from 'lucide-react'
+
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xyzplaceholder'
 
 export default function Contact() {
   const [submitted, setSubmitted] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setSubmitted(true)
+    const form = e.currentTarget
+
+    setSubmitting(true)
+    setErrorMessage('')
+
+    try {
+      const response = await fetch(form.action, {
+        method: form.method,
+        body: new FormData(form),
+        headers: {
+          Accept: 'application/json',
+        },
+      })
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => null)
+        const defaultMessage = response.status === 404
+          ? 'This Formspree endpoint is still a placeholder. Replace /f/xyzplaceholder with the live form ID to start receiving submissions.'
+          : 'We could not send your message right now. Please try again in a minute.'
+
+        setErrorMessage(data?.errors?.[0]?.message ?? defaultMessage)
+        return
+      }
+
+      form.reset()
+      setSubmitted(true)
+    } catch {
+      setErrorMessage('We could not reach the form service. Please try again in a minute.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
     <>
-      {/* Page Header */}
       <div className="page-header">
         <h1>Let's get your business found.</h1>
         <p>
@@ -20,11 +61,9 @@ export default function Contact() {
         </p>
       </div>
 
-      {/* Contact Section */}
       <section className="section">
         <div className="container">
           <div className="contact-grid">
-            {/* Form */}
             <div className="contact-form-wrapper">
               {submitted ? (
                 <div className="contact-success">
@@ -36,63 +75,80 @@ export default function Contact() {
                   </p>
                 </div>
               ) : (
-                <form className="contact-form" onSubmit={handleSubmit}>
+                <form
+                  className="contact-form"
+                  action={FORMSPREE_ENDPOINT}
+                  method="POST"
+                  onSubmit={handleSubmit}
+                >
+                  <input type="hidden" name="source" value="Reputation Built contact form" />
+
+                  {errorMessage && (
+                    <div className="contact-error" role="alert" aria-live="polite">
+                      <AlertCircle size={18} />
+                      <span>{errorMessage}</span>
+                    </div>
+                  )}
+
                   <div className="form-row">
                     <div className="form-group">
                       <label htmlFor="name">Your Name</label>
-                      <input
-                        id="name"
-                        type="text"
-                        placeholder="John Smith"
-                        required
-                      />
+                      <input id="name" name="name" type="text" placeholder="John Smith" required />
                     </div>
                     <div className="form-group">
                       <label htmlFor="business">Business Name</label>
                       <input
                         id="business"
+                        name="businessName"
                         type="text"
                         placeholder="Smith's Plumbing"
                         required
                       />
                     </div>
                   </div>
+
                   <div className="form-row">
                     <div className="form-group">
                       <label htmlFor="phone">Phone</label>
-                      <input
-                        id="phone"
-                        type="tel"
-                        placeholder="(816) 555-0100"
-                      />
+                      <input id="phone" name="phone" type="tel" placeholder="(816) 555-0100" />
                     </div>
                     <div className="form-group">
                       <label htmlFor="email">Email</label>
                       <input
                         id="email"
+                        name="email"
                         type="email"
                         placeholder="john@smithplumbing.com"
                         required
                       />
                     </div>
                   </div>
+
                   <div className="form-group">
                     <label htmlFor="message">Tell us about your business</label>
                     <textarea
                       id="message"
+                      name="message"
                       rows={5}
                       placeholder="What kind of work do you do? What area do you serve? What is your biggest challenge with getting customers online?"
                       required
                     />
                   </div>
-                  <button type="submit" className="btn btn-amber btn-lg contact-submit">
-                    Send Message
+
+                  <button type="submit" className="btn btn-amber btn-lg contact-submit" disabled={submitting}>
+                    {submitting ? (
+                      <>
+                        Sending
+                        <LoaderCircle size={18} className="contact-submit__spinner" />
+                      </>
+                    ) : (
+                      'Send Message'
+                    )}
                   </button>
                 </form>
               )}
             </div>
 
-            {/* Contact Info */}
             <div className="contact-info">
               <div className="contact-info-card card">
                 <h3>Get in touch directly</h3>
@@ -171,6 +227,19 @@ export default function Contact() {
           gap: 20px;
         }
 
+        .contact-error {
+          display: flex;
+          align-items: flex-start;
+          gap: 10px;
+          padding: 14px 16px;
+          border-radius: var(--radius-md);
+          background: rgba(185, 28, 28, 0.08);
+          border: 1px solid rgba(185, 28, 28, 0.16);
+          color: #991b1b;
+          font-size: 0.92rem;
+          line-height: 1.5;
+        }
+
         .form-row {
           display: grid;
           grid-template-columns: 1fr 1fr;
@@ -220,6 +289,16 @@ export default function Contact() {
 
         .contact-submit {
           align-self: flex-start;
+        }
+
+        .contact-submit__spinner {
+          animation: contact-spin 0.9s linear infinite;
+        }
+
+        @keyframes contact-spin {
+          to {
+            transform: rotate(360deg);
+          }
         }
 
         .contact-success {

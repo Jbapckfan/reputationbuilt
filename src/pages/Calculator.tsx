@@ -1,8 +1,21 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, TrendingUp, Phone, DollarSign, BarChart3, Calculator as CalcIcon } from 'lucide-react'
+import {
+  ArrowRight,
+  TrendingUp,
+  Phone,
+  DollarSign,
+  BarChart3,
+  Calculator as CalcIcon,
+  Mail,
+  LoaderCircle,
+  CircleCheck,
+  AlertCircle,
+} from 'lucide-react'
 import Hero from '../components/Hero.tsx'
 import CTASection from '../components/CTASection.tsx'
+
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xyzplaceholder'
 
 const trades = [
   'Plumber',
@@ -36,9 +49,9 @@ function getMultiplier(trade: string): [number, number] {
     case 'Electrician':
       return [0.15, 0.25]
     case 'Roofer':
-      return [0.20, 0.35]
+      return [0.2, 0.35]
     case 'Landscaper':
-      return [0.10, 0.20]
+      return [0.1, 0.2]
     case 'Restaurant':
       return [0.08, 0.15]
     case 'Painter':
@@ -78,6 +91,9 @@ export default function Calculator() {
   const [revenueIndex, setRevenueIndex] = useState('')
   const [results, setResults] = useState<Results | null>(null)
   const [showResults, setShowResults] = useState(false)
+  const [captureEmail, setCaptureEmail] = useState('')
+  const [captureStatus, setCaptureStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
+  const [captureMessage, setCaptureMessage] = useState('')
 
   const handleCalculate = () => {
     if (!trade || !city.trim() || revenueIndex === '') return
@@ -97,6 +113,54 @@ export default function Calculator() {
       withWebsite: midpoint + highEstimate,
     })
     setShowResults(true)
+    setCaptureStatus('idle')
+    setCaptureMessage('')
+    setCaptureEmail('')
+  }
+
+  const handleEmailCapture = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+
+    if (!results) return
+
+    const form = e.currentTarget
+    const formData = new FormData(form)
+
+    formData.set(
+      'message',
+      `Revenue report request for ${results.trade} in ${results.city}. Current monthly revenue: ${formatCurrency(results.currentRevenue)}. Estimated upside: ${formatCurrency(results.lowEstimate)} to ${formatCurrency(results.highEstimate)}.`
+    )
+
+    setCaptureStatus('submitting')
+    setCaptureMessage('')
+
+    try {
+      const response = await fetch(FORMSPREE_ENDPOINT, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          Accept: 'application/json',
+        },
+      })
+
+      if (!response.ok) {
+        setCaptureStatus('error')
+        setCaptureMessage(
+          response.status === 404
+            ? 'This Formspree endpoint is still a placeholder. Replace /f/xyzplaceholder with the live form ID to collect report requests.'
+            : 'We could not save your report request right now. Please try again.'
+        )
+        return
+      }
+
+      form.reset()
+      setCaptureStatus('success')
+      setCaptureMessage('Report request received. We will send the full breakdown and recommendations shortly.')
+      setCaptureEmail('')
+    } catch {
+      setCaptureStatus('error')
+      setCaptureMessage('We could not reach the form service. Please try again.')
+    }
   }
 
   const barMaxRevenue = results ? results.withWebsite : 1
@@ -105,7 +169,6 @@ export default function Calculator() {
 
   return (
     <>
-      {/* Hero */}
       <Hero
         title="What's your business leaving on the table?"
         subtitle="See how much revenue you could be missing without a professional online presence."
@@ -116,7 +179,6 @@ export default function Calculator() {
         </a>
       </Hero>
 
-      {/* Calculator Form */}
       <section className="section" id="calculator-form">
         <div className="container">
           <div className="text-center" style={{ marginBottom: 48 }}>
@@ -133,11 +195,7 @@ export default function Calculator() {
               <div className="calc-form-row">
                 <div className="form-group">
                   <label htmlFor="calc-trade">Your Trade</label>
-                  <select
-                    id="calc-trade"
-                    value={trade}
-                    onChange={e => setTrade(e.target.value)}
-                  >
+                  <select id="calc-trade" value={trade} onChange={e => setTrade(e.target.value)}>
                     <option value="">Select your trade...</option>
                     {trades.map(t => (
                       <option key={t} value={t}>{t}</option>
@@ -158,11 +216,7 @@ export default function Calculator() {
               <div className="calc-form-row">
                 <div className="form-group">
                   <label htmlFor="calc-revenue">Monthly Revenue Range</label>
-                  <select
-                    id="calc-revenue"
-                    value={revenueIndex}
-                    onChange={e => setRevenueIndex(e.target.value)}
-                  >
+                  <select id="calc-revenue" value={revenueIndex} onChange={e => setRevenueIndex(e.target.value)}>
                     <option value="">Select your revenue range...</option>
                     {revenueRanges.map((r, i) => (
                       <option key={r.label} value={i}>{r.label}</option>
@@ -185,7 +239,6 @@ export default function Calculator() {
         </div>
       </section>
 
-      {/* Results */}
       {results && (
         <section className={`section section-linen calc-results-section${showResults ? ' calc-results-visible' : ''}`}>
           <div className="container">
@@ -228,17 +281,13 @@ export default function Calculator() {
                 </div>
               </div>
 
-              {/* Bar Chart */}
               <div className="calc-chart">
                 <h4 className="calc-chart-title">Monthly Revenue Comparison</h4>
                 <div className="calc-chart-bars">
                   <div className="calc-bar-row">
                     <div className="calc-bar-label">Without Website</div>
                     <div className="calc-bar-track">
-                      <div
-                        className="calc-bar calc-bar--without"
-                        style={{ width: `${currentBarWidth}%` }}
-                      >
+                      <div className="calc-bar calc-bar--without" style={{ width: `${currentBarWidth}%` }}>
                         <span className="calc-bar-amount">{formatCurrency(results.currentRevenue)}</span>
                       </div>
                     </div>
@@ -246,10 +295,7 @@ export default function Calculator() {
                   <div className="calc-bar-row">
                     <div className="calc-bar-label">With Professional Website</div>
                     <div className="calc-bar-track">
-                      <div
-                        className="calc-bar calc-bar--with"
-                        style={{ width: `${withWebsiteBarWidth}%` }}
-                      >
+                      <div className="calc-bar calc-bar--with" style={{ width: `${withWebsiteBarWidth}%` }}>
                         <span className="calc-bar-amount">{formatCurrency(results.withWebsite)}</span>
                       </div>
                     </div>
@@ -260,7 +306,66 @@ export default function Calculator() {
                 </div>
               </div>
 
-              {/* CTA in results */}
+              <div className="calc-capture">
+                <div className="calc-capture__header">
+                  <div className="calc-capture__icon">
+                    <Mail size={18} />
+                  </div>
+                  <div>
+                    <h4>Get your full revenue report + 3 personalized recommendations</h4>
+                    <p>
+                      We will send the estimate, plus a few concrete ways to turn more search traffic into booked jobs.
+                    </p>
+                  </div>
+                </div>
+
+                <form className="calc-capture__form" action={FORMSPREE_ENDPOINT} method="POST" onSubmit={handleEmailCapture}>
+                  <input type="hidden" name="source" value="Reputation Built revenue calculator" />
+                  <input type="hidden" name="trade" value={results.trade} />
+                  <input type="hidden" name="city" value={results.city} />
+                  <input type="hidden" name="businessName" value={`${results.trade} business`} />
+                  <input type="hidden" name="phone" value="" />
+                  <input type="hidden" name="name" value="Revenue calculator lead" />
+                  <label className="calc-capture__field" htmlFor="report-email">
+                    <span>Email address</span>
+                    <input
+                      id="report-email"
+                      name="email"
+                      type="email"
+                      placeholder="you@business.com"
+                      value={captureEmail}
+                      onChange={e => setCaptureEmail(e.target.value)}
+                      required
+                    />
+                  </label>
+                  <button
+                    type="submit"
+                    className="btn btn-amber calc-capture__button"
+                    disabled={captureStatus === 'submitting'}
+                  >
+                    {captureStatus === 'submitting' ? (
+                      <>
+                        Sending
+                        <LoaderCircle size={18} className="calc-capture__spinner" />
+                      </>
+                    ) : (
+                      'Email My Report'
+                    )}
+                  </button>
+                </form>
+
+                {captureStatus !== 'idle' && captureMessage && (
+                  <div
+                    className={`calc-capture__status calc-capture__status--${captureStatus}`}
+                    role={captureStatus === 'error' ? 'alert' : 'status'}
+                    aria-live="polite"
+                  >
+                    {captureStatus === 'success' ? <CircleCheck size={18} /> : <AlertCircle size={18} />}
+                    <span>{captureMessage}</span>
+                  </div>
+                )}
+              </div>
+
               <div className="calc-results-cta">
                 <h3>Ready to capture this revenue?</h3>
                 <p>We will build you a free demo site to prove it.</p>
@@ -279,7 +384,6 @@ export default function Calculator() {
         </section>
       )}
 
-      {/* Bottom CTA */}
       {!results && (
         <CTASection
           headline="See what your site could look like -- free, no strings."
@@ -289,7 +393,6 @@ export default function Calculator() {
       )}
 
       <style>{`
-        /* --- Calculator Form --- */
         .calc-form-card {
           max-width: 720px;
           margin: 0 auto;
@@ -373,7 +476,6 @@ export default function Calculator() {
           box-shadow: none;
         }
 
-        /* --- Results --- */
         .calc-results-section {
           opacity: 0;
           transform: translateY(20px);
@@ -421,7 +523,6 @@ export default function Calculator() {
           max-width: none;
         }
 
-        /* Stats Grid */
         .calc-stats-grid {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
@@ -477,9 +578,8 @@ export default function Calculator() {
           line-height: 1.4;
         }
 
-        /* Bar Chart */
         .calc-chart {
-          margin-bottom: 40px;
+          margin-bottom: 32px;
           padding: 28px;
           background: var(--color-linen);
           border-radius: var(--radius-md);
@@ -553,7 +653,109 @@ export default function Calculator() {
           color: var(--color-primary);
         }
 
-        /* Results CTA */
+        .calc-capture {
+          margin-bottom: 36px;
+          padding: 28px;
+          border-radius: var(--radius-md);
+          background: rgba(27, 67, 50, 0.04);
+          border: 1px solid rgba(27, 67, 50, 0.08);
+        }
+
+        .calc-capture__header {
+          display: flex;
+          gap: 16px;
+          margin-bottom: 18px;
+        }
+
+        .calc-capture__icon {
+          width: 44px;
+          height: 44px;
+          flex-shrink: 0;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: rgba(217, 119, 6, 0.12);
+          color: var(--color-amber);
+        }
+
+        .calc-capture__header h4 {
+          font-size: 1.1rem;
+          margin-bottom: 6px;
+        }
+
+        .calc-capture__header p {
+          color: var(--color-secondary);
+          max-width: none;
+        }
+
+        .calc-capture__form {
+          display: flex;
+          gap: 14px;
+          align-items: end;
+        }
+
+        .calc-capture__field {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          font-size: 0.9rem;
+          font-weight: 600;
+          color: var(--color-text);
+        }
+
+        .calc-capture__field input {
+          width: 100%;
+          padding: 12px 16px;
+          border: 1.5px solid rgba(0, 0, 0, 0.1);
+          border-radius: var(--radius-sm);
+          font-size: 1rem;
+          color: var(--color-text);
+          background: var(--color-white);
+        }
+
+        .calc-capture__field input:focus {
+          outline: none;
+          border-color: var(--color-primary);
+          box-shadow: 0 0 0 3px rgba(27, 67, 50, 0.1);
+        }
+
+        .calc-capture__button {
+          min-height: 50px;
+        }
+
+        .calc-capture__spinner {
+          animation: calc-spin 0.9s linear infinite;
+        }
+
+        .calc-capture__status {
+          display: inline-flex;
+          align-items: flex-start;
+          gap: 10px;
+          margin-top: 14px;
+          padding: 12px 14px;
+          border-radius: 12px;
+          font-size: 0.92rem;
+          line-height: 1.5;
+        }
+
+        .calc-capture__status--success {
+          background: rgba(22, 163, 74, 0.08);
+          color: #166534;
+        }
+
+        .calc-capture__status--error {
+          background: rgba(185, 28, 28, 0.08);
+          color: #991b1b;
+        }
+
+        @keyframes calc-spin {
+          to {
+            transform: rotate(360deg);
+          }
+        }
+
         .calc-results-cta {
           text-align: center;
           padding: 32px 24px;
@@ -574,7 +776,6 @@ export default function Calculator() {
           max-width: none;
         }
 
-        /* Fine Print */
         .calc-fine-print {
           text-align: center;
           font-size: 0.8rem;
@@ -586,14 +787,18 @@ export default function Calculator() {
           line-height: 1.5;
         }
 
-        /* --- Mobile --- */
         @media (max-width: 768px) {
           .calc-form-card {
             padding: 24px 20px;
           }
 
-          .calc-form-row {
+          .calc-form-row,
+          .calc-stats-grid,
+          .calc-capture__header,
+          .calc-capture__form {
             grid-template-columns: 1fr;
+            flex-direction: column;
+            align-items: stretch;
           }
 
           .calc-results-card {
@@ -601,7 +806,6 @@ export default function Calculator() {
           }
 
           .calc-stats-grid {
-            grid-template-columns: 1fr;
             gap: 16px;
           }
 
@@ -613,12 +817,10 @@ export default function Calculator() {
             font-size: 1.3rem;
           }
 
-          .calc-chart {
-            padding: 20px 16px;
-          }
-
+          .calc-chart,
+          .calc-capture,
           .calc-results-cta {
-            padding: 28px 20px;
+            padding: 20px 16px;
           }
 
           .calc-results-cta h3 {
