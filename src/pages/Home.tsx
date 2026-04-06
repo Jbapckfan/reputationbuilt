@@ -172,6 +172,25 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Calculator Callout */}
+      <section className="section">
+        <div className="container">
+          <div className="calc-callout">
+            <div className="calc-callout-text">
+              <h3>How much revenue is your business leaving on the table?</h3>
+              <p>
+                Use our free calculator to see the estimated revenue impact of having a
+                professional website and online presence for your trade.
+              </p>
+            </div>
+            <Link to="/calculator" className="btn btn-outline">
+              Try the Revenue Calculator
+              <ArrowRight size={16} />
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <CTASection
         headline="See what your site could look like -- free, no strings."
@@ -273,6 +292,32 @@ export default function Home() {
           margin-bottom: 4px;
         }
 
+        .calc-callout {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 32px;
+          padding: 36px 40px;
+          background: var(--color-linen);
+          border-radius: var(--radius-lg);
+          border: 1px solid rgba(27, 67, 50, 0.08);
+        }
+
+        .calc-callout-text h3 {
+          font-size: 1.3rem;
+          margin-bottom: 8px;
+        }
+
+        .calc-callout-text p {
+          color: var(--color-secondary);
+          font-size: 0.95rem;
+          margin: 0;
+        }
+
+        .calc-callout .btn {
+          flex-shrink: 0;
+        }
+
         @media (max-width: 768px) {
           .problem-grid {
             grid-template-columns: 1fr;
@@ -292,6 +337,17 @@ export default function Home() {
             transform: rotate(90deg);
             padding-top: 0;
             margin: -8px 0;
+          }
+
+          .calc-callout {
+            flex-direction: column;
+            text-align: center;
+            padding: 28px 24px;
+          }
+
+          .calc-callout .btn {
+            width: 100%;
+            max-width: 320px;
           }
         }
       `}</style>

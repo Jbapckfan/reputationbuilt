@@ -7,6 +7,7 @@ import HowItWorks from './pages/HowItWorks.tsx'
 import Pricing from './pages/Pricing.tsx'
 import About from './pages/About.tsx'
 import Contact from './pages/Contact.tsx'
+import Calculator from './pages/Calculator.tsx'
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/calculator" element={<Calculator />} />
       </Route>
     </Routes>
   )
