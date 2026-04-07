@@ -1,10 +1,8 @@
 import { Link } from 'react-router-dom'
+import type { ReactNode } from 'react'
 import {
   ArrowRight,
   Globe,
-  PhoneCall,
-  CalendarCheck,
-  Search,
   Hammer,
   Eye,
   Rocket,
@@ -13,10 +11,60 @@ import ServiceCard from '../components/ServiceCard.tsx'
 import CTASection from '../components/CTASection.tsx'
 import FounderProofBand from '../components/FounderProofBand.tsx'
 
+function MonoIcon({ children }: { children: ReactNode }) {
+  return (
+    <svg viewBox="0 0 48 48" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      {children}
+    </svg>
+  )
+}
+
+const customWebsiteIcon = (
+  <MonoIcon>
+    <path d="M10 18h11l5 5h12" />
+    <path d="M14 18v-6h12v6" />
+    <path d="M28 23v-5h10v5" />
+    <circle cx="14" cy="24" r="4" />
+    <circle cx="34" cy="24" r="4" />
+    <path d="M6 34h36" />
+  </MonoIcon>
+)
+
+const aiPhoneIcon = (
+  <MonoIcon>
+    <path d="M16 13c1 8 11 18 19 19" />
+    <path d="M29 12c4 1 7 4 8 8" />
+    <path d="M31 17c2 1 3 2 4 4" />
+    <path d="M12 18l4-4c1-1 3-1 4 0l3 3c1 1 1 2 0 3l-2 2c3 5 5 7 10 10l2-2c1-1 2-1 3 0l3 3c1 1 1 3 0 4l-4 4c-2 2-5 2-7 0-9-6-15-12-21-21-2-2-2-5 0-7Z" />
+  </MonoIcon>
+)
+
+const schedulingIcon = (
+  <MonoIcon>
+    <path d="M13 10v6" />
+    <path d="M35 10v6" />
+    <rect x="9" y="13" width="30" height="26" rx="4" />
+    <path d="M9 21h30" />
+    <path d="M17 28h8" />
+    <path d="M17 33h14" />
+    <path d="M30 29l3 3 5-6" />
+  </MonoIcon>
+)
+
+const seoReviewsIcon = (
+  <MonoIcon>
+    <path d="M24 39s-9-9-9-15a9 9 0 1 1 18 0c0 6-9 15-9 15Z" />
+    <path d="m36 11 1 3 3 .2-2.4 1.8.9 3-2.5-1.6-2.5 1.6.9-3L32 14.2l3-.2 1-3Z" />
+    <path d="m11 15 .8 2.3 2.4.2-1.9 1.5.8 2.4-2.1-1.4-2.1 1.4.8-2.4-1.9-1.5 2.4-.2.8-2.3Z" />
+    <circle cx="24" cy="24" r="3" />
+  </MonoIcon>
+)
+
 export default function Home() {
   return (
     <>
       <section className="home-hero">
+        <div className="home-hero__grain" aria-hidden="true" />
         <div className="container home-hero__grid">
           <div className="home-hero__copy">
             <span className="home-hero__eyebrow">Kansas City websites and AI for local businesses</span>
@@ -41,7 +89,10 @@ export default function Home() {
           </div>
 
           <div className="home-hero__preview">
-            <div className="browser-mockup">
+            <div className="browser-mockup-wrap">
+              <div className="browser-mockup__emergency">24/7 EMERGENCY SERVICE</div>
+              <div className="browser-mockup__reviews">★★★★★ 127 REVIEWS</div>
+              <div className="browser-mockup">
               <div className="browser-mockup__chrome">
                 <div className="browser-mockup__dots">
                   <span />
@@ -88,6 +139,7 @@ export default function Home() {
                   </div>
                 </div>
               </div>
+            </div>
             </div>
           </div>
         </div>
@@ -141,25 +193,25 @@ export default function Home() {
           </div>
           <div className="grid-4">
             <ServiceCard
-              icon={<Globe size={24} />}
+              icon={customWebsiteIcon}
               title="Custom Websites"
               description="Mobile-first, fast-loading sites built for your business. Not a template -- a real site that makes customers trust you."
               linkTo="/services"
             />
             <ServiceCard
-              icon={<PhoneCall size={24} />}
+              icon={aiPhoneIcon}
               title="AI Phone Answering"
               description="Never miss a lead, even at 2 AM. A custom AI agent answers calls and captures leads while you work."
               linkTo="/services"
             />
             <ServiceCard
-              icon={<CalendarCheck size={24} />}
+              icon={schedulingIcon}
               title="Online Scheduling"
               description="Let customers book appointments without the back-and-forth. Syncs with your calendar automatically."
               linkTo="/services"
             />
             <ServiceCard
-              icon={<Search size={24} />}
+              icon={seoReviewsIcon}
               title="SEO & Reviews"
               description="Show up in local search results and turn happy customers into five-star reviews."
               linkTo="/services"
@@ -281,6 +333,25 @@ export default function Home() {
           pointer-events: none;
         }
 
+        .home-hero::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='320' viewBox='0 0 320 320'%3E%3Cpath d='M20 188c28-36 56-26 84-54s28-58 74-68 74 16 122-16' fill='none' stroke='%231B4332' stroke-opacity='.1' stroke-width='1'/%3E%3Cpath d='M4 214c46-24 74-8 108-26 44-22 50-80 110-92 50-10 74 4 98-16' fill='none' stroke='%232D6A4F' stroke-opacity='.08' stroke-width='1'/%3E%3Cpath d='M16 256c34-18 58-14 88-34 34-22 54-58 102-60 44-2 74 10 114-6' fill='none' stroke='%231B4332' stroke-opacity='.08' stroke-width='1'/%3E%3C/svg%3E");
+          opacity: 0.35;
+          pointer-events: none;
+        }
+
+        .home-hero__grain {
+          position: absolute;
+          inset: 0;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.9'/%3E%3C/svg%3E");
+          opacity: 0.04;
+          mix-blend-mode: multiply;
+          pointer-events: none;
+          z-index: 0;
+        }
+
         .home-hero__grid {
           display: grid;
           grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
@@ -344,6 +415,11 @@ export default function Home() {
           justify-content: center;
         }
 
+        .browser-mockup-wrap {
+          position: relative;
+          padding: 26px 20px 10px;
+        }
+
         .browser-mockup {
           width: min(100%, 520px);
           border-radius: 22px;
@@ -351,6 +427,41 @@ export default function Home() {
           border: 1px solid rgba(27, 67, 50, 0.12);
           box-shadow: var(--shadow-xl);
           background: #f9fafb;
+          position: relative;
+          z-index: 1;
+        }
+
+        .browser-mockup__emergency,
+        .browser-mockup__reviews {
+          position: absolute;
+          z-index: 2;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 999px;
+          box-shadow: 0 16px 34px rgba(28, 25, 23, 0.14);
+          font-size: 0.78rem;
+          font-weight: 700;
+          letter-spacing: 0.08em;
+        }
+
+        .browser-mockup__emergency {
+          top: 0;
+          right: 8px;
+          padding: 10px 16px;
+          background: linear-gradient(135deg, #fbbf24, var(--color-amber));
+          color: #fff;
+          transform: rotate(4deg);
+        }
+
+        .browser-mockup__reviews {
+          left: 0;
+          bottom: 18px;
+          padding: 10px 14px;
+          background: rgba(255, 255, 255, 0.92);
+          color: var(--color-primary);
+          border: 1px solid rgba(27, 67, 50, 0.1);
+          transform: rotate(-5deg);
         }
 
         .browser-mockup__chrome {
@@ -654,6 +765,17 @@ export default function Home() {
           .browser-mockup__cards,
           .problem-grid {
             grid-template-columns: 1fr;
+          }
+
+          .browser-mockup-wrap {
+            padding-inline: 10px;
+          }
+
+          .browser-mockup__emergency,
+          .browser-mockup__reviews {
+            position: static;
+            transform: none;
+            margin-bottom: 10px;
           }
 
           .steps-row {

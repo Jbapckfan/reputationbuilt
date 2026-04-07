@@ -145,7 +145,7 @@ export default function Header() {
         .header-nav {
           display: flex;
           align-items: center;
-          gap: 4px;
+          gap: 6px;
         }
 
         .nav-link {
@@ -153,19 +153,21 @@ export default function Header() {
           font-size: 0.9rem;
           font-weight: 500;
           color: var(--color-text);
-          border-radius: var(--radius-sm);
-          transition: color 0.2s, background 0.2s;
+          border-radius: 999px;
+          transition: color 0.2s, background 0.2s, box-shadow 0.2s;
           text-decoration: none;
         }
 
         .nav-link:hover {
           color: var(--color-primary);
-          background: rgba(27, 67, 50, 0.05);
+          background: rgba(217, 119, 6, 0.08);
         }
 
         .nav-link--active {
-          color: var(--color-primary);
+          color: var(--color-white);
           font-weight: 600;
+          background: linear-gradient(135deg, var(--color-amber), var(--color-copper));
+          box-shadow: 0 10px 22px rgba(217, 119, 6, 0.18);
         }
 
         .nav-cta-mobile {
@@ -224,33 +226,40 @@ export default function Header() {
             display: flex;
             flex-direction: column;
             position: fixed;
-            top: var(--header-height);
+            top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: var(--color-bg);
-            padding: 24px;
-            gap: 4px;
+            background:
+              linear-gradient(160deg, rgba(27, 67, 50, 0.98), rgba(45, 106, 79, 0.96)),
+              var(--color-primary);
+            padding: calc(var(--header-height) + 36px) 24px 32px;
+            gap: 8px;
             z-index: 999;
             overflow-y: auto;
           }
 
           .header-nav--open .nav-link {
-            font-size: 1.1rem;
-            padding: 14px 16px;
-            border-radius: var(--radius-md);
+            font-size: clamp(1.5rem, 5vw, 2.4rem);
+            line-height: 1;
+            padding: 14px 0;
+            border-radius: 0;
+            color: rgba(255, 255, 255, 0.92);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
           }
 
           .header-nav--open .nav-link:hover,
           .header-nav--open .nav-link--active {
-            background: var(--color-linen);
+            background: transparent;
+            color: var(--color-white);
+            box-shadow: none;
           }
 
           .header-nav--open .nav-cta-mobile {
             display: block;
-            margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px solid rgba(0, 0, 0, 0.08);
+            margin-top: 20px;
+            padding-top: 18px;
+            border-top: 1px solid rgba(255, 255, 255, 0.14);
           }
 
           .header-nav--open .nav-cta-mobile .btn {

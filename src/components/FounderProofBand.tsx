@@ -2,6 +2,15 @@ interface FounderProofBandProps {
   theme?: 'forest' | 'navy'
 }
 
+function ArrowIcon() {
+  return (
+    <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M4 10h12" />
+      <path d="m11 4 6 6-6 6" />
+    </svg>
+  )
+}
+
 export default function FounderProofBand({ theme = 'forest' }: FounderProofBandProps) {
   return (
     <section className={`founder-proof founder-proof--${theme}`}>
@@ -20,6 +29,7 @@ export default function FounderProofBand({ theme = 'forest' }: FounderProofBandP
           rel="noopener noreferrer"
         >
           Visit jamesalford.vercel.app
+          <ArrowIcon />
         </a>
       </div>
 
@@ -28,6 +38,18 @@ export default function FounderProofBand({ theme = 'forest' }: FounderProofBandP
           padding: 28px 24px;
           border-top: 1px solid rgba(0, 0, 0, 0.08);
           border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+          position: relative;
+          overflow: hidden;
+        }
+
+        .founder-proof::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='160' viewBox='0 0 360 160'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='.08' stroke-width='1'%3E%3Cpath d='M12 118h114v-42h96v26h126'/%3E%3Cpath d='M34 138V86h44V50h82'/%3E%3Ccircle cx='92' cy='50' r='6'/%3E%3Ccircle cx='222' cy='76' r='6'/%3E%3Ccircle cx='304' cy='102' r='6'/%3E%3C/g%3E%3C/svg%3E");
+          background-size: 420px auto;
+          opacity: 0.4;
+          pointer-events: none;
         }
 
         .founder-proof--forest {
@@ -47,6 +69,8 @@ export default function FounderProofBand({ theme = 'forest' }: FounderProofBandP
           grid-template-columns: 1.4fr 1fr auto;
           gap: 24px;
           align-items: center;
+          position: relative;
+          z-index: 1;
         }
 
         .founder-proof__eyebrow {
@@ -68,13 +92,20 @@ export default function FounderProofBand({ theme = 'forest' }: FounderProofBandP
           justify-self: end;
           color: var(--color-white, #f8fafb);
           font-weight: 600;
-          padding-bottom: 4px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.35);
-          transition: opacity 0.2s ease;
+          padding: 10px 14px;
+          border: 1px solid rgba(255, 255, 255, 0.22);
+          border-radius: 999px;
+          background: rgba(255, 255, 255, 0.04);
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          transition: opacity 0.2s ease, background 0.2s ease, transform 0.2s ease;
         }
 
         .founder-proof__link:hover {
-          opacity: 0.78;
+          opacity: 1;
+          background: rgba(255, 255, 255, 0.09);
+          transform: translateY(-1px);
         }
 
         @media (max-width: 900px) {
